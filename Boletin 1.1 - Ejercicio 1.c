@@ -1,9 +1,3 @@
-/* 
-#define _GNU_SOURCE //  Este comando es para usar asprintf. 
-                        Compila en la version MinGW 2018 pero NO en la version 2019 (9.2.0).
-                        Por este motivo he hecho una modificacion del codigo, mas simple y con el comando sprintf.
-                        perteneciente a la libreria estandar <stdio.h> y he suprimido la funcion asprintf en nuevotema();
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
