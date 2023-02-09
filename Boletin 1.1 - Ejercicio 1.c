@@ -46,6 +46,7 @@ void inicializar_grados(){
         grado[i].numero = i+1;
         strcpy(grado[i].id, "0");
         strcpy(grado[i].titulo, "vacio");
+        grado[i].plazas = 0;
     }
 }
 
@@ -207,17 +208,54 @@ void despedida()
     return 0;
 }
 
+
+void menuInicial(){
+    int opcion = 0;
+
+    while (isdigit(opcion) != 1 && (opcion <=0 || opcion > 3)) /* Para que no acepte valores distintos de numeros 1 al 6 */
+    {
+        system("cls");
+        cabecera();
+
+        printf("/****** MENU INICIAL *******/\n\n");
+
+        printf("    QUE ACCION DESEA REALIIZAR?\n");
+        printf("\t1. Introducir/Eliminar datos manualmente\n");
+        printf("\t2. Introducir/Eliminar datos a traves de ficheros\n");
+        printf("\t3. Salir\n");
+        
+        scanf(" %d", &opcion);
+        fflush(stdin);
+
+        switch(opcion)
+        {
+        case 1:
+            menuPpal();
+            return 0;
+            break;
+        case 2:
+            return 0;
+            break;
+        case 3:
+            despedida();
+            system("pause");
+            return 0;
+            break;
+        }
+    }
+}
+
 /* Funcion que abre el menu principal */
 void menuPpal()
 {
     int opcion = 0;
 
-    while (isdigit(opcion) != 1 && (opcion <=0 || opcion > 6)) /* Para que no acepte valores distintos de numeros 1 al 6 */
+    while (isdigit(opcion) != 1 && (opcion <=0 || opcion > 8)) /* Para que no acepte valores distintos de numeros 1 al 6 */
     {
         system("cls");
         cabecera();
 
-        printf("/****** MENU PRINCIPAL *******/\n\n");
+        printf("/****** MENU MANUAL *******/\n\n");
 
         printf("    QUE ACCION DESEA REALIIZAR?\n");
         printf("\t1. Alta de un nuevo grado\n");
@@ -227,15 +265,18 @@ void menuPpal()
         printf("\t5. Aniadir un tema de una asignatura\n");
         printf("\t6. Eliminar un tema de una asignatura\n");
         printf("\t7. Mostrar un listado del registro\n");
-        printf("\t8. Salir\n");
+        printf("\t8. Volver al menu inicial\n");
+        
         scanf(" %d", &opcion);
         fflush(stdin);
 
         switch(opcion)
         {
         case 1:
+            altaGrado();
             break;
         case 2:
+            bajaGrado();
             break;
         case 3:
             altaAsignatura();
@@ -258,7 +299,7 @@ void menuPpal()
             return 0;
             break;
         case 8:
-            despedida();
+            menuInicial();
             return 0;
             break;
         }
@@ -291,6 +332,87 @@ char mayusculas(char variable[])
     return variable;
 }
 
+/*
+int numero; // Para tener un identificador de su posicion en el struct
+    char id[3]; // Clave del grado de maximo 2 letras
+    char titulo[81]; // Nombre del titulo del grado maximo 80 caracteres
+    struct t_asignaturas asignatura[N_ASIGNATURAS]; // Hasta un maximo de 44 asignaturas
+    int plazas;
+*/
+
+void altaGrado(){
+    int numGrado;
+    char idGrado[3]; // por simplicidad el id del grado podra ser cualquier caracter (max. 2)
+    char tituloGrado[81];
+    int plazasGrado;
+
+    char opcion = ' ';
+
+    do{
+        printf("Introduzca el numero de registro donde se almacenara el nuevo grado (1/20): ");
+        scanf("%d", &numGrado);
+    }while((numGrado <= 0 || numGrado > 20) && isdigit(numGrado) != 1);
+
+    printf("Introduzca el ID que quiere que se asigne al nuevo grado (max. 2 caracteres): ");
+    fgets(idGrado, (sizeof(idGrado)/sizeof(char)), stdin);
+    fflush(stdin);
+
+    do{
+        printf("Introduzca el numero de plazas que tendra el nuevo grado: ");
+        scanf("%d", &plazasGrado);
+    }while(plazasGrado <= 0); // aqui he considerado que el numero de plazas tiene que ser positivo
+
+    printf("Introduzca el nombre del nuevo grado: ");
+    fgets(tituloGrado, (sizeof(tituloGrado)/sizeof(char)), stdin);
+    fflush(stdin);
+
+    printf("Quiere confirmar el alta (S/N)? ");
+    scanf("%c", &opcion);
+    opcion = toupper(opcion);
+    fflush(stdin);
+
+    switch(opcion){
+        case 'S':
+            grado[numGrado-1].numero = numGrado;
+            strcpy(grado[numGrado-1].id, idGrado);
+            strcpy(grado[numGrado-1].titulo, tituloGrado);
+            grado[numGrado-1].plazas = plazasGrado;
+            printf("Grado registrado con exito!\n\n");
+            system("pause");
+            menuPpal();
+            return 0;
+            break;
+        case 'N':
+            menuPpal();
+            return 0;
+            break;
+    }
+}
+
+void bajaGrado(){
+    char idGrado[3];
+    char opcion = ' ';
+
+    printf("Introduzca la clave del grado que desea eliminar del sistema: ");
+    scanf("%s", &idGrado);
+    fflush(stdin);
+
+    printf("Con la eliminacion de este grado se procedera al borrado de todas sus asignaturas y los temas correspondientes.\n");
+    printf("Esta segundo de querer eliminar todos los datos (S/N): ");
+    scanf("%c", &opcion);
+    fflush(stdin);
+
+    switch(opcion){
+        case 'S':
+            break;
+        case 'N':
+            printf("Los datos no han sido eliminados.\n\n");
+            system("pause");
+            menuPpal();
+            break;
+    }
+}
+
 /* Funcion para introducir una nueva asignatura en el sistema */
 void altaAsignatura()
 {
@@ -302,6 +424,7 @@ void altaAsignatura()
     int contador = 0;
     int noEsLetra = 0;
     int numTemas = 0;
+    int numGrado = 0;
 
     system("cls");
     cabecera();
@@ -311,16 +434,20 @@ void altaAsignatura()
     printf("\tATENCION! Esta operacion puede sobreescribir datos existentes.\n\n");
     printf("    Introduzca la siguiente informacion:\n");
 
+    printf("Numero de registro del grado al que pertenece (1/20): ");
+    scanf("%d", &numGrado);
+    fflush(stdin);
+
     do
     {
         contador = 0;
-        printf("\t  Numero de registro (1/44): ");
+        printf("\t  Numero de registro de la asignatura (1/44): ");
         scanf(" %d", &numReg);
         fflush(stdin);
     }
     while(isdigit(numReg) != 1 && (numReg <= 0 || numReg > 44)); /* Para que solo acepte numeros del 1 al 44 */
 
-    if(strcmp(asignatura[numReg-1].clave, "0") != 0) /* Comprueba si ya existe una asignatura en ese numero de registro */
+    if(strcmp(grado[numGrado-1].asignatura[numReg-1].clave, "0") != 0) /* Comprueba si ya existe una asignatura en ese numero de registro */
     {
         printf("\n\t\tYa existe una asignatura con ese numero\n");
 
@@ -337,13 +464,13 @@ void altaAsignatura()
             case 'S': /* Si se elige SI se borran los datos de los temas asociados a la asignatura */
                 for(int t=0; t<30; t++)
                 {
-                    strcpy(asignatura[numReg-1].tema[t].clave, "0");
-                    asignatura[numReg-1].tema[t].numeroTema = t+1;
-                    strcpy(asignatura[numReg-1].tema[t].identificador, "vacio");
-                    strcpy(asignatura[numReg-1].tema[t].titulo, "vacio");
-                    strcpy(asignatura[numReg-1].tema[t].descripcion, "vacio");
-                    strcpy(asignatura[numReg-1].tema[t].fechaAlta, "00/00/0000");
-                    strcpy(asignatura[numReg-1].tema[t].profesor, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numReg-1].tema[t].clave, "0");
+                    grado[numGrado-1].asignatura[numReg-1].tema[t].numeroTema = t+1;
+                    strcpy(grado[numGrado-1].asignatura[numReg-1].tema[t].identificador, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numReg-1].tema[t].titulo, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numReg-1].tema[t].descripcion, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numReg-1].tema[t].fechaAlta, "00/00/0000");
+                    strcpy(grado[numGrado-1].asignatura[numReg-1].tema[t].profesor, "vacio");
                 }
                 break;
             case 'N': /* Si se elige NO se vuelve al menu principal sin borrar los datos */
@@ -360,11 +487,11 @@ void altaAsignatura()
 
     /* En caso de haber seleccionado SI se continua sobreescribiendo la asignatura */
 
-    do 
+    do
     {
         contador = 0;
         noEsLetra = 0;
-        
+
         do{
             printf("\t  Clave (max. 2 letras): ");
             scanf("%s", &clave); // ERROR CORREGIDO del anterior codigo en el que usaba fgets y funcionaba pero era menos "preciso"
@@ -382,9 +509,9 @@ void altaAsignatura()
             }
         }
 
-        for(int i=0; i<44; i++) /* Pide introducir una clave hasta que esta sea diferente de las existentes */
+        for(int i=0; i<N_ASIGNATURAS; i++) /* Pide introducir una clave hasta que esta sea diferente de las existentes */
         {
-            if(strcmp(asignatura[i].clave, clave) == 0)
+            if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
             {
                 contador++;
                 printf("\t\tYa existe una asignatura con esa clave\n");
@@ -401,9 +528,9 @@ void altaAsignatura()
         comprobarSaltoLinea(nombre);
         fflush(stdin);
 
-        for(int i=0; i<44; i++) /* Este for controla que no haya otra asignatura con el mismo nombre */
+        for(int i=0; i<N_ASIGNATURAS; i++) /* Este for controla que no haya otra asignatura con el mismo nombre */
         {
-            if(strcmp(asignatura[i].nombre, nombre) == 0)
+            if(strcmp(grado[numGrado-1].asignatura[i].nombre, nombre) == 0)
             {
                 contador++;
                 printf("\t\tYa existe una asignatura con ese nombre\n");
@@ -417,9 +544,9 @@ void altaAsignatura()
     comprobarSaltoLinea(descripcion);
     fflush(stdin);
 
-    for(int k=0; k<30; k++) /* Este for cuenta el numero de temas que existen de la asignatura */
+    for(int k=0; k<N_TEMAS; k++) /* Este for cuenta el numero de temas que existen de la asignatura */
     {
-        if(strcmp(asignatura[numReg-1].tema[k].identificador, "vacio") != 0)
+        if(strcmp(grado[numGrado-1].asignatura[numReg-1].tema[k].identificador, "vacio") != 0)
         {
             numTemas++;
         }
@@ -427,10 +554,10 @@ void altaAsignatura()
     printf("\t  Temas disponibles: %d", numTemas); /* Antes de aniadir el primer tema hay que aniadir la asignatura por lo que esto siempre sera = 0 */
 
     /* Estos codigos almacenan los datos introducidos en el vector de asignaturas */
-    asignatura[numReg-1].numero = numReg;
-    strcpy(asignatura[numReg-1].clave, clave);
-    strcpy(asignatura[numReg-1].nombre, nombre);
-    strcpy(asignatura[numReg-1].descripcion, descripcion);
+    grado[numGrado-1].asignatura[numReg-1].numero = numReg;
+    strcpy(grado[numGrado-1].asignatura[numReg-1].clave, clave);
+    strcpy(grado[numGrado-1].asignatura[numReg-1].nombre, nombre);
+    strcpy(grado[numGrado-1].asignatura[numReg-1].descripcion, descripcion);
 
     printf("\n\n\t\tLa asignatura ha sido registrada con exito!\n\n\n");
 
@@ -446,18 +573,23 @@ void bajaAsignatura()
     int contadorAs = 0;
     char opcion = ' ';
     int numA = 0;
+    int numGrado = 0;
 
     system("cls");
     cabecera();
 
     printf("/****** BAJA DE UNA ASIGNATURA *******/\n\n");
 
+    printf("Introduzca el numero de registro del grado (1/20): ");
+    scanf("%d", &numGrado);
+    fflush(stdin);
+
     imprimirAsignaturas(); /* Imprime la lista de asignaturas existentes */
 
     contador = 0;
-    for(int i=0; i<44; i++)
+    for(int i=0; i<N_ASIGNATURAS; i++)
     {
-        if(strcmp(asignatura[i].clave, "0") != 0)
+        if(strcmp(grado[numGrado-1].asignatura[i].clave, "0") != 0)
         {
             contadorAs++;
         }
@@ -480,9 +612,9 @@ void bajaAsignatura()
             }while(strlen(clave) > 2 || strcmp(clave, "0") == 0);
 
             contador = 0;
-            for(int i=0; i<44; i++)
+            for(int i=0; i<N_ASIGNATURAS; i++)
             {
-                if(strcmp(asignatura[i].clave, clave) == 0)
+                if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
                 {
                     contador++;
                     numA = i; /* Borra el numero de asignatura segun la posicion en el vector asignaturas */
@@ -510,20 +642,20 @@ void bajaAsignatura()
             {
             case 'S': /* Inicializa los valores de la asignatura seleccionada */
 
-                asignatura[numA].numero = numA;
-                strcpy(asignatura[numA].clave, "0");
-                strcpy(asignatura[numA].nombre, "vacio");
-                strcpy(asignatura[numA].descripcion, "vacio");
+                grado[numGrado-1].asignatura[numA].numero = numA;
+                strcpy(grado[numGrado-1].asignatura[numA].clave, "0");
+                strcpy(grado[numGrado-1].asignatura[numA].nombre, "vacio");
+                strcpy(grado[numGrado-1].asignatura[numA].descripcion, "vacio");
 
-                for(int j=0; j<30; j++)
+                for(int j=0; j<N_TEMAS; j++)
                 {
-                    strcpy(asignatura[numA].tema[j].clave, "0");
-                    asignatura[numA].tema[j].numeroTema = j+1;
-                    strcpy(asignatura[numA].tema[j].identificador, "vacio");
-                    strcpy(asignatura[numA].tema[j].titulo, "vacio");
-                    strcpy(asignatura[numA].tema[j].descripcion, "vacio");
-                    strcpy(asignatura[numA].tema[j].fechaAlta, "00/00/0000");
-                    strcpy(asignatura[numA].tema[j].profesor, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].clave, "0");
+                    grado[numGrado-1].asignatura[numA].tema[j].numeroTema = j+1;
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].identificador, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].titulo, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].descripcion, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].fechaAlta, "00/00/0000");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].profesor, "vacio");
                 }
 
                 printf("\n\n\t\tLa asignatura ha sido eliminada con exito!\n\n\n");
@@ -543,7 +675,6 @@ void bajaAsignatura()
 
 void nuevoTema()
 {
-    //char* clave[6]; al suprimir el codigo de la funcion asprintf ya no utilizo la variable con puntero
     char clave[6];
     int numT = 0; /* Numero del tema */
     int numA = 0; /* Numero de la asignatura */
@@ -554,6 +685,8 @@ void nuevoTema()
     char fechaAlta[11];
     int contFecha = 0;
     char profesor[41];
+    int numGrado = 0;
+    char idCompleta[10];
 
     system("cls");
     cabecera();
@@ -562,9 +695,13 @@ void nuevoTema()
 
     imprimirAsignaturas();
 
-    for(int i=0; i<44; i++)
+    printf("Introduzca el numero de registro del grado (1/20): ");
+    scanf("%d", &numGrado);
+    fflush(stdin);
+
+    for(int i=0; i<N_ASIGNATURAS; i++)
     {
-        if(strcmp(asignatura[i].clave, "0") != 0)
+        if(strcmp(grado[numGrado-1].asignatura[i].clave, "0") != 0)
         {
             contadorAs++;
         }
@@ -576,7 +713,7 @@ void nuevoTema()
         printf("    Introduzca la siguiente informacion:\n");
 
         do
-        {   
+        {
             do{
                 printf("\tClave de la asignatura a la que pertenece (max. 2 letras): ");
                 scanf("%s", &clave);
@@ -592,7 +729,7 @@ void nuevoTema()
             contador = 0; // ERROR CORREGIDO: en el codigo anterior este contador estaba antes del do y no funcionaba
             for(int i=0; i<44; i++)
             {
-                if(strcmp(asignatura[i].clave, clave) == 0)
+                if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
                 {
                     contador++;
                 }
@@ -604,9 +741,9 @@ void nuevoTema()
         }
         while (contador == 0);
 
-        for(int i=0; i<44; i++)
+        for(int i=0; i<N_ASIGNATURAS; i++)
         {
-            if(strcmp(asignatura[i].clave, clave) == 0)
+            if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
             {
                 numA = i; /* Encuentra la posicion en el vector de la asignatura con la clave introducida */
             }
@@ -653,41 +790,24 @@ void nuevoTema()
         while(strlen(fechaAlta) != 10 || contFecha == 1);
 
         /* A partir de aqui se aniaden los datos introducidos en el vector temas */
-        strcpy(asignatura[numA].tema[numT-1].clave, clave);
-        asignatura[numA].tema[numT-1].numeroTema = numT;
+        strcpy(grado[numGrado-1].asignatura[numA].tema[numT-1].clave, clave);
+        grado[numGrado-1].asignatura[numA].tema[numT-1].numeroTema = numT;
 
-        strcat(clave, "_"); /* Concatena un guion bajo a la variable clave */
+        strcpy(idCompleta, grado[numGrado-1].id);
+        strcat(idCompleta, "-");
+        strcat(idCompleta, clave);
+        strcat(idCompleta, "_");
 
-        /* DESDE AQUI. El siguiente codigo concatena la variable clave (CHAR) y la variable numT (INT)
+        sprintf(clave, "%s%d", idCompleta, numT);
+        strcpy(grado[numGrado-1].asignatura[numA].tema[numT-1].identificador, idCompleta); // Este comando copia el valor de clave en el ID asignatura
 
-                CODIGO SUPRIMIDO Y CAMBIADO POR EL QUE VIENE A CONTINUACION DE ESTE COMENTARIO
-
-        char *num;
-        char buffer[6];
-
-        if (asprintf(&num, "%d", numT) == -1)
-        {
-            perror("asprintf");
-        }
-        else
-        {
-            strcat(strcpy(buffer, clave), num);
-            strcpy(asignatura[numA].tema[numT].identificador, buffer);
-            free(num);
-        }
-        /* HASTA AQUI. Debido a que ambas variables tienen diferente tipo puede hacerse mediante punteros y usando #define _GNU_SOURCE */
-
-        sprintf(clave, "%s%d", clave, numT); // Este comando hace lo mismo que el suprimido asprintf
-                                            // Ademas es mas simple y, como se ha dicho, forma parte de la libreria <stdio.h>
-        strcpy(asignatura[numA].tema[numT-1].identificador, clave); // Este comando copia el valor de clave en el ID asignatura
-
-        strcpy(asignatura[numA].tema[numT-1].titulo, titulo);
-        strcpy(asignatura[numA].tema[numT-1].descripcion, descripcion);
-        strcpy(asignatura[numA].tema[numT-1].fechaAlta, fechaAlta);
-        strcpy(asignatura[numA].tema[numT-1].profesor, profesor);
+        strcpy(grado[numGrado-1].asignatura[numA].tema[numT-1].titulo, titulo);
+        strcpy(grado[numGrado-1].asignatura[numA].tema[numT-1].descripcion, descripcion);
+        strcpy(grado[numGrado-1].asignatura[numA].tema[numT-1].fechaAlta, fechaAlta);
+        strcpy(grado[numGrado-1].asignatura[numA].tema[numT-1].profesor, profesor);
 
         printf("\n\t\tEl tema ha sido dado de alta con exito!\n");
-        printf("\t\tEl identificador asignado es %s\n", asignatura[numA].tema[numT-1].identificador);
+        printf("\t\tEl identificador asignado es %s\n", grado[numGrado-1].asignatura[numA].tema[numT-1].identificador);
 
         printf("\n\n");
         system("pause");
@@ -704,6 +824,7 @@ void eliminarTema()
     int contador2 = 0;
     int contadorAs = 0;
     int numA = 0;
+    int numGrado = 0;
 
     system("cls");
     cabecera();
@@ -712,9 +833,13 @@ void eliminarTema()
 
     imprimirAsignaturas();
 
-    for(int i=0; i<44; i++)
+    printf("Introduzca el numero de registro del grado de la asignatura (1/20): ");
+    scanf("%d", &numGrado);
+    fflush(stdin);
+
+    for(int i=0; i<N_ASIGNATURAS; i++)
     {
-        if(strcmp(asignatura[i].clave, "0") != 0)
+        if(strcmp(grado[numGrado-1].asignatura[i].clave, "0") != 0)
         {
             contadorAs++;
         }
@@ -725,7 +850,7 @@ void eliminarTema()
 
         contador = 0;
         do
-        {   
+        {
             do{
                 printf("\tClave de la asignatura a la que pertenece (max. 2 letras): ");
                 scanf("%s", clave);
@@ -739,9 +864,9 @@ void eliminarTema()
 
             }while(strlen(clave) > 2 || strcmp(clave, "0") == 0);
 
-            for(int i=0; i<44; i++)
+            for(int i=0; i<N_ASIGNATURAS; i++)
             {
-                if(strcmp(asignatura[i].clave, clave) == 0)
+                if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
                 {
                     contador++;
                 }
@@ -755,7 +880,7 @@ void eliminarTema()
 
         for(int i=0; i<44; i++)
         {
-            if(strcmp(asignatura[i].clave, clave) == 0)
+            if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
             {
                 numA = i;
             }
@@ -766,9 +891,9 @@ void eliminarTema()
         printf("/****** ELIMINAR TEMA *******/\n\n");
 
         imprimirTemas();
-        
-        for(int i=0; i<30; i++){
-            if(strcmp(asignatura[numA].tema[i].clave, "0") != 0) {
+
+        for(int i=0; i<N_TEMAS; i++){
+            if(strcmp(grado[numGrado-1].asignatura[numA].tema[i].clave, "0") != 0) {
                 contador2++;
             }
         }
@@ -785,18 +910,18 @@ void eliminarTema()
             while(strlen(id) > 5);
 
             contador = 0;
-            for(int j=0; j<30; j++)
+            for(int j=0; j<N_TEMAS; j++)
             {
-                if(strcmp(asignatura[numA].tema[j].identificador, id) == 0) /* Se inicializan los valores del tema seleccionado */
+                if(strcmp(grado[numGrado-1].asignatura[numA].tema[j].identificador, id) == 0) /* Se inicializan los valores del tema seleccionado */
                 {
                     contador++;
-                    strcpy(asignatura[numA].tema[j].clave, "0");
-                    asignatura[numA].tema[j].numeroTema = j;
-                    strcpy(asignatura[numA].tema[j].identificador, "vacio");
-                    strcpy(asignatura[numA].tema[j].titulo, "vacio");
-                    strcpy(asignatura[numA].tema[j].descripcion, "vacio");
-                    strcpy(asignatura[numA].tema[j].fechaAlta, "00/00/0000");
-                    strcpy(asignatura[numA].tema[j].profesor, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].clave, "0");
+                    grado[numGrado-1].asignatura[numA].tema[j].numeroTema = j;
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].identificador, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].titulo, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].descripcion, "vacio");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].fechaAlta, "00/00/0000");
+                    strcpy(grado[numGrado-1].asignatura[numA].tema[j].profesor, "vacio");
 
                     printf("\n\n\t\tEl tema ha sido eliminado con exito!\n\n");
                 }
@@ -819,6 +944,7 @@ void listadoRegistro()
 {
     char opcion = ' ';
     int contador = 0;
+    int numGrado = 0;
 
     system("cls");
     cabecera();
@@ -826,10 +952,14 @@ void listadoRegistro()
     printf("/****** LISTADO DE LAS ASIGNATURAS DISPONIBLES *******/\n\n");
     imprimirAsignaturas();
 
+    printf("Introduzca el numero de registro al grado al que pertenece (1/20): ");
+    scanf("%d", &numGrado);
+    fflush(stdin);
+
     contador = 0;
     for(int i=0; i<44; i++)
     {
-        if(strcmp(asignatura[i].clave, "0") != 0)
+        if(strcmp(grado[numGrado-1].asignatura[i].clave, "0") != 0)
         {
             contador++;
         }
@@ -865,6 +995,11 @@ void listadoTemas()
     int contador = 0;
     int contador2 = 0;
     int numA = 0;
+    int numGrado = 0;
+
+    printf("Introduzca el numero de registro al grado al que pertenece (1/20): ");
+    scanf("%d", &numGrado);
+    fflush(stdin);
 
     do
     {
@@ -883,7 +1018,7 @@ void listadoTemas()
         contador = 0;
         for(int i=0; i<44; i++)
         {
-            if(strcmp(asignatura[i].clave, clave) == 0)
+            if(strcmp(grado[numGrado-1].asignatura[i].clave, clave) == 0)
             {
                 contador++;
                 numA = i;
@@ -903,8 +1038,8 @@ void listadoTemas()
 
     imprimirTemas();
 
-    for(int i=0; i<30; i++){
-        if(strcmp(asignatura[numA].tema[i].clave, "0") != 0) {
+    for(int i=0; i<N_TEMAS; i++){
+        if(strcmp(grado[numGrado-1].asignatura[numA].tema[i].clave, "0") != 0) {
             contador2++;
         }
     }
@@ -916,42 +1051,15 @@ void listadoTemas()
     }
 }
 
-/* Funcion para introducir las asignaturas que vienen predefinidas en el sistema */
-void nuevaAsignatura(char clave[], char nombre[], char descripcion[])
-{
-    asignatura[contAsignaturas].numero = contAsignaturas+1;
-    strcpy(asignatura[contAsignaturas].clave, clave);
-    strcpy(asignatura[contAsignaturas].nombre, nombre);
-    strcpy(asignatura[contAsignaturas].descripcion, descripcion);
-    contAsignaturas++;
-}
 
 /* Funcion principal, aqui empieza a funcionar el programa */
 int main(void)
 {
-
+    inicializar_grados();
     inicializarAsignaturas();
     inicializarTemas();
 
-    /* Los apuntes est�n organizados en diferentes asignaturas. En la actualidad existen los siguientes tipos:
-    � Algebra (A)
-    � Fundamentos de Computadores (B)
-    � Calculo (C)
-    � Fundamentos de Programaci�n I (D)
-    � Teolog�a (E)
-    � Laboratorio de Inform�tica (F)
-    � Estructura de Computadores (G)
-    */
-
-    nuevaAsignatura("A", "Algebra", "Asignatura de matematicas: algebra.");
-    nuevaAsignatura("B", "Fundamentos de Computadores", "Asignatura de introduccion al funcionamiento de los computadores.");
-    nuevaAsignatura("C", "Calculo", "Asignatura de matematicas: calculo.");
-    nuevaAsignatura("D", "Fundamentos de Programacion I", "Asignatura de introduccion a las bases de la programacion en C.");
-    nuevaAsignatura("E", "Teologia", "Asignatura de teologia.");
-    nuevaAsignatura("F", "Laboratorio de Informatica", "Asignatura practica de toma de contacto con el hardware de un ordenador.");
-    nuevaAsignatura("G", "Estructura de Computadores", "Asignatura de profundizacion sobre el funcionamiento de los computadores.");
-
-    menuPpal();
+    menuInicial();
 
     return 0;
 }
