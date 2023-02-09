@@ -4,6 +4,10 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+#define N_TEMAS 30
+#define N_ASIGNATURAS 44
+#define N_GRADOS 20
+
 int contAsignaturas = 0;
 
 typedef struct t_temas
@@ -23,39 +27,90 @@ typedef struct t_asignaturas
     char clave[3]; /* Clave de maximo 2 letras */
     char nombre[31]; /* Nombre de una asignatura maximo 30 caracteres */
     char descripcion[81]; /* La descripcion maxima de una asignatura es de 80 caracteres */
-    struct t_temas tema[30]; /* El numero maximo de temas por asignatura es 30 */
+    struct t_temas tema[N_TEMAS]; /* El numero maximo de temas por asignatura es 30 */
 };
 
-struct t_asignaturas asignatura[44]; /* Hasta un maximo de 44 asignaturas */
+typedef struct t_grados{
+    int numero; // Para tener un identificador de su posicion en el struct
+    char id[3]; // Clave del grado de maximo 2 letras
+    char titulo[81]; // Nombre del titulo del grado maximo 80 caracteres
+    struct t_asignaturas asignatura[N_ASIGNATURAS]; /* Hasta un maximo de 44 asignaturas */
+    int plazas;
+};
 
+struct t_grados grado[N_GRADOS];
+
+void inicializar_grados(){
+    for(int i=0; i<N_GRADOS; i++)
+    {
+        grado[i].numero = i+1;
+        strcpy(grado[i].id, "0");
+        strcpy(grado[i].titulo, "vacio");
+    }
+}
+
+void imprimir_grados(){
+    int contador = 0;
+
+    for(int i=0; i<N_GRADOS; i++){ /* Desde 1 a 44 dejando la posicion 0 sin utilizar */
+        if(strcmp(grado[i].id, "0") != 0) /* Solo imprime si la asignatura tiene clave distinta de 0 */
+        {
+            contador++; /* En caso de ser 0 indica que no existen asignaturas en el registro */
+        }
+    }
+    if (contador == 0)
+    {
+        printf("\tNUMERO\tCLAVE\tPLAZAS\tTITULO\n\n");
+        printf("\t\tNo hay ninguna asignatura en el registro\n\n\n");
+
+        system("pause");
+        menuPpal();
+        return 0;
+    }
+    else if(contador != 0) /* En caso de ser distinto de cero imprime la lista con las asignaturas disponibles */
+    {
+        printf("\tNUMERO\tCLAVE\tPLAZAS\tTITULO\n\n");
+        for(int i=0; i<N_ASIGNATURAS; i++)
+        {
+            if(strcmp(grado[i].id, "0") != 0)
+            {
+                printf("\t%-2d\t%-2s\t%-30s\t\t%-80s\n", grado[i].numero, grado[i].id, grado[i].plazas, grado[i].titulo);
+            }
+        }
+    }
+    printf("\n");
+
+}
 /* Funcion que inicializa las asignaturas con los valores "i", "0", "vacio", "vacio" */
 void inicializarAsignaturas()
 {
-    for(int i=0; i<44; i++)
-    {
-        asignatura[i].numero = i+1; // i+1 para que me almacene el [0] con el numero 1
-        strcpy(asignatura[i].clave, "0");
-        strcpy(asignatura[i].nombre, "vacio");
-        strcpy(asignatura[i].descripcion, "vacio");
+    for(int j=0; j<N_GRADOS; j++){
+        for(int i=0; i<N_ASIGNATURAS; i++)
+        {
+            grado[j].asignatura[i].numero = i+1; // i+1 para que me almacene el [0] con el numero 1
+            strcpy(grado[j].asignatura[i].clave, "0");
+            strcpy(grado[j].asignatura[i].nombre, "vacio");
+            strcpy(grado[j].asignatura[i].descripcion, "vacio");
+        }
     }
 }
 
 /* Funcion que imprime la lista de asignaturas existentes */
-void imprimirAsignaturas()
-{
+void imprimirAsignaturas(){
     int contador = 0;
 
-    for(int i=0; i<44; i++) /* Desde 1 a 44 dejando la posicion 0 sin utilizar */
-    {
-        if(strcmp(asignatura[i].clave, "0") != 0) /* Solo imprime si la asignatura tiene clave distinta de 0 */
-        {
-            contador++; /* En caso de ser 0 indica que no existen asignaturas en el registro */
+    for(int j=0; j<N_GRADOS; j++){
+        for(int i=0; i<N_ASIGNATURAS; i++){ /* Desde 1 a 44 dejando la posicion 0 sin utilizar */
+            if(strcmp(grado[j].asignatura[i].clave, "0") != 0) /* Solo imprime si la asignatura tiene clave distinta de 0 */
+            {
+                contador++; /* En caso de ser 0 indica que no existen asignaturas en el registro */
+            }
         }
     }
 
     if (contador == 0)
     {
-        printf("\tNUMERO\tCLAVE\tNOMBRE\t\t\t\t\tDESCRIPCION\n\n");
+        printf("\tGRADO\tNUMERO\tCLAVE\tNOMBRE\t\t\t\t\tDESCRIPCION\n\n");
         printf("\t\tNo hay ninguna asignatura en el registro\n\n\n");
 
         system("pause");
@@ -65,12 +120,14 @@ void imprimirAsignaturas()
     }
     else if(contador != 0) /* En caso de ser distinto de cero imprime la lista con las asignaturas disponibles */
     {
-        printf("\tNUMERO\tCLAVE\tNOMBRE\t\t\t\t\tDESCRIPCION\n\n");
-        for(int i=0; i<44; i++)
-        {
-            if(strcmp(asignatura[i].clave, "0") != 0)
+        printf("\tGRADO\tNUMERO\tCLAVE\tNOMBRE\t\t\t\t\tDESCRIPCION\n\n");
+        for(int j=0; j<N_GRADOS; j++){
+            for(int i=0; i<N_ASIGNATURAS; i++)
             {
-                printf("\t%-2d\t%-2s\t%-30s\t\t%-80s\n", asignatura[i].numero, asignatura[i].clave, asignatura[i].nombre, asignatura[i].descripcion);
+                if(strcmp(grado[j].asignatura[i].clave, "0") != 0)
+                {
+                    printf("\t%-2s\t%-2d\t%-2s\t%-30s\t\t%-80s\n", grado[j].id, grado[j].asignatura[i].numero, grado[j].asignatura[i].clave, grado[j].asignatura[i].nombre, grado[j].asignatura[i].descripcion);
+                }
             }
         }
     }
@@ -80,17 +137,18 @@ void imprimirAsignaturas()
 /* Funcion que inicializa los temas con los valores que se pueden ver */
 void inicializarTemas()
 {
-    for(int i=0; i<44; i++)
-    {
-        for(int j=0; j<30; j++)
-        {
-            strcpy(asignatura[i].tema[j].clave, "0");
-            asignatura[i].tema[j].numeroTema = j+1;
-            strcpy(asignatura[i].tema[j].identificador, "vacio");
-            strcpy(asignatura[i].tema[j].titulo, "vacio");
-            strcpy(asignatura[i].tema[j].descripcion, "vacio");
-            strcpy(asignatura[i].tema[j].fechaAlta, "00/00/0000");
-            strcpy(asignatura[i].tema[j].profesor, "vacio");
+    for(int k=0; k<N_GRADOS; k++){
+        for(int j=0; j<N_ASIGNATURAS; j++){
+            for(int i=0; i<N_TEMAS; i++)
+            {
+                strcpy(grado[k].asignatura[j].tema[i].clave, "0");
+                grado[k].asignatura[j].tema[i].numeroTema = j+1;
+                strcpy(grado[k].asignatura[j].tema[i].identificador, "vacio");
+                strcpy(grado[k].asignatura[j].tema[i].titulo, "vacio");
+                strcpy(grado[k].asignatura[j].tema[i].descripcion, "vacio");
+                strcpy(grado[k].asignatura[j].tema[i].fechaAlta, "00/00/0000");
+                strcpy(grado[k].asignatura[j].tema[i].profesor, "vacio");
+            }
         }
     }
 }
@@ -100,16 +158,17 @@ void imprimirTemas()
 {
     int contadorTemas = 0; /* Indica lo mismo que el contador de asignaturas */
     printf("\tCLAVE\tTEMA\tID\tFECHA ALTA\tPROFESOR\n\n");
-    for(int i=0; i<44; i++)
-    {
-        for(int j=0; j<30; j++)
-        {
-            if(strcmp(asignatura[i].tema[j].clave, "0") != 0)
+    for(int k=0; k<N_GRADOS; k++){
+        for(int j=0; j<N_ASIGNATURAS; j++){
+            for(int i=0; i<N_TEMAS; i++)
             {
-                printf("\t%-2s\t%-2d\t%-5s\t%-10s\t%-40s\n", asignatura[i].tema[j].clave, asignatura[i].tema[j].numeroTema, asignatura[i].tema[j].identificador, asignatura[i].tema[j].fechaAlta, asignatura[i].tema[j].profesor);
-                printf("\n\t\tTITULO: %-80s\n", asignatura[i].tema[j].titulo);
-                printf("\t\tDESCRIPCION: %-80s\n\n\n", asignatura[i].tema[j].descripcion);
-                contadorTemas++;
+                if(strcmp(grado[k].asignatura[j].tema[i].clave, "0") != 0)
+                {
+                    printf("\t%-2s\t%-2d\t%-5s\t%-10s\t%-40s\n", grado[k].asignatura[j].tema[i].clave, grado[k].asignatura[j].tema[i].numeroTema, grado[k].asignatura[j].tema[i].identificador, grado[k].asignatura[j].tema[i].fechaAlta, grado[k].asignatura[j].tema[i].profesor);
+                    printf("\n\t\tTITULO: %-80s\n", grado[k].asignatura[j].tema[i].titulo);
+                    printf("\t\tDESCRIPCION: %-80s\n\n\n", grado[k].asignatura[j].tema[i].descripcion);
+                    contadorTemas++;
+                }
             }
         }
     }
@@ -161,38 +220,44 @@ void menuPpal()
         printf("/****** MENU PRINCIPAL *******/\n\n");
 
         printf("    QUE ACCION DESEA REALIIZAR?\n");
-        printf("\t1. Alta de una nueva asignatura\n");
-        printf("\t2. Baja de una asignatura existente\n");
-        printf("\t3. Aniadir un tema de una asignatura\n");
-        printf("\t4. Eliminar un tema de una asignatura\n");
-        printf("\t5. Mostrar un listado del registro\n");
-        printf("\t6. Salir\n");
+        printf("\t1. Alta de un nuevo grado\n");
+        printf("\t2. Baja de un grado existente\n");
+        printf("\t3. Alta de una nueva asignatura\n");
+        printf("\t4. Baja de una asignatura existente\n");
+        printf("\t5. Aniadir un tema de una asignatura\n");
+        printf("\t6. Eliminar un tema de una asignatura\n");
+        printf("\t7. Mostrar un listado del registro\n");
+        printf("\t8. Salir\n");
         scanf(" %d", &opcion);
         fflush(stdin);
 
         switch(opcion)
         {
         case 1:
+            break;
+        case 2:
+            break;
+        case 3:
             altaAsignatura();
             return 0;
             break;
-        case 2:
+        case 4:
             bajaAsignatura();
             return 0;
             break;
-        case 3:
+        case 5:
             nuevoTema();
             return 0;
             break;
-        case 4:
+        case 6:
             eliminarTema();
             return 0;
             break;
-        case 5:
+        case 7:
             listadoRegistro();
             return 0;
             break;
-        case 6:
+        case 8:
             despedida();
             return 0;
             break;
